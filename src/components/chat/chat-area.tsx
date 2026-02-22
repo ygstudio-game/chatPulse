@@ -39,11 +39,14 @@ export const ChatArea = () => {
     const acceptCall = useMutation(api.conversations.acceptCall);
     const declineCall = useMutation(api.conversations.declineCall);
 
-    const conversation = useQuery(api.conversations.getConversation, {
-        id: conversationId,
-    });
-
-    const messages = useQuery(api.messages.list, { conversationId });
+    const conversation = useQuery(
+        api.conversations.getConversation,
+        conversationId ? { id: conversationId } : "skip"
+    );
+    const messages = useQuery(
+        api.messages.list,
+        conversationId ? { conversationId } : "skip"
+    );
     const me = useQuery(api.users.getMe);
     const lastMessage = messages?.[messages.length - 1];
 
@@ -283,7 +286,11 @@ export const ChatArea = () => {
                             exit={{ opacity: 0 }}
                             className="absolute inset-0 z-0 flex flex-col"
                         >
-                            <ChatView conversationId={conversationId} />
+                            <ChatView
+                                conversationId={conversationId}
+                                lastMessageId={lastMessage?._id}
+                                onSelectSmartReply={handleSmartReply}
+                            />
                         </motion.div>
                     )}
                 </AnimatePresence>

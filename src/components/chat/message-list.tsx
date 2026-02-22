@@ -24,13 +24,13 @@ interface MessageListProps {
 }
 
 export const MessageList = ({ conversationId }: MessageListProps) => {
-    const messages = useQuery(api.messages.list, { conversationId });
+    const messages = useQuery(api.messages.list, conversationId ? { conversationId } : "skip");
     const me = useQuery(api.users.getMe);
     const deleteMessage = useMutation(api.messages.deleteMessage);
     const deleteForMe = useMutation(api.messages.deleteForMe);
     const addReaction = useMutation(api.messages.addReaction);
     const markRead = useMutation(api.conversations.markRead);
-    const conversationDetails = useQuery(api.conversations.getConversation, { id: conversationId });
+    const conversationDetails = useQuery(api.conversations.getConversation, conversationId ? { id: conversationId } : "skip");
     const scrollRef = useRef<HTMLDivElement>(null);
     const lastMessageIdRef = useRef<string | null>(null);
     const [showScrollButton, setShowScrollButton] = useState(false);

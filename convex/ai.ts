@@ -95,7 +95,6 @@ export const transcribeAudio = internalAction({
 export const summarize = action({
     args: { conversationId: v.id("conversations") },
     handler: async (ctx, args): Promise<string> => {
-        // Ensure this file is actually named `ai.ts` so `internal.ai` resolves correctly.
         const history: string = await ctx.runQuery(internal.ai.getConversationHistory, {
             conversationId: args.conversationId,
         });
@@ -104,16 +103,14 @@ export const summarize = action({
             return "Not enough message history to summarize.";
         }
 
-        // FIX 2: Corrected "GOGGLE" typo to "GOOGLE"
-        const apiKey = process.env.GOOGLE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
-        if (!apiKey) {
-            throw new Error("Missing Gemini API Key in environment variables.");
-        }
-
         const prompt: string = `Summarize the following chat conversation in exactly 3 short, punchy bullet points. Focus only on the main takeaways.\n\nConversation:\n${history}`;
 
         try {
-            // FIX 3: Ensured a stable model version endpoint. 
+            const apiKey = process.env.GOOGLE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
+            if (!apiKey) {
+                throw new Error("Missing Gemini API Key in environment variables.");
+            }
+
             const response: Response = await fetch(
                 `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
                 {
@@ -140,7 +137,7 @@ export const summarize = action({
 
             return summaryText || "No summary generated.";
         } catch (error) {
-            console.error("Action error:", error);
+            console.error("Summarization error:", error);
             return "An error occurred while calling the AI model.";
         }
     },
@@ -166,9 +163,10 @@ Respond ONLY with the JSON array:`;
 
         console.log("Generating smart replies for history snippet:", history.split("\n").slice(-3).join(" | "));
 
-        // Attempt 1: Gemini
         try {
             const apiKey = process.env.GOOGLE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
+            if (!apiKey) throw new Error("Missing Gemini API Key");
+
             const response = await fetch(
                 `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
                 {
@@ -191,37 +189,7 @@ Respond ONLY with the JSON array:`;
                 console.error("Gemini API Error:", await response.text());
             }
         } catch (e) {
-            console.error("Gemini failed, falling back to Grok:", e);
-        }
-
-        // Attempt 2: Grok (xAI) Fallback
-        try {
-            const grokKey = process.env.GROK_API_KEY || process.env.XAI_API_KEY;
-            if (grokKey) {
-                const response = await fetch("https://api.x.ai/v1/chat/completions", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${grokKey}`,
-                    },
-                    body: JSON.stringify({
-                        model: "grok-beta",
-                        messages: [{ role: "user", content: prompt }],
-                        temperature: 0.7,
-                    }),
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    const text = data?.choices?.[0]?.message?.content;
-                    if (text) {
-                        const parsed = parseAIArray(text);
-                        if (parsed.length > 0) return parsed;
-                    }
-                }
-            }
-        } catch (e) {
-            console.error("Grok failed as well:", e);
+            console.error("Smart replies failed:", e);
         }
 
         return ["Got it!", "Thanks!", "Talk soon!"]; // Static fallback

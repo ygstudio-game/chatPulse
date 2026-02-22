@@ -144,7 +144,7 @@ export const MessageInput = ({ conversationId }: MessageInputProps) => {
     };
 
     return (
-        <div className="absolute bottom-2 left-2 right-2 md:bottom-6 md:left-6 md:right-6 z-40 transition-all duration-300">
+        <div className="w-full transition-all duration-300">
             <div className="max-w-4xl mx-auto bg-secondary/80 dark:bg-black/40 backdrop-blur-2xl border border-border p-1.5 md:p-3 shadow-2xl rounded-2xl md:rounded-[2rem] flex flex-col gap-2">
 
                 {/* Reply Context Block */}
