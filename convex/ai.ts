@@ -39,9 +39,14 @@ export const transcribeAudio = internalAction({
             const response = await fetch(fileUrl);
             const blob = await response.blob();
 
-            // Convert to base64
+            // Convert to base64 safely without Node.js Buffer
             const arrayBuffer = await blob.arrayBuffer();
-            const base64Data = Buffer.from(arrayBuffer).toString('base64');
+            let binary = '';
+            const bytes = new Uint8Array(arrayBuffer);
+            for (let i = 0; i < bytes.byteLength; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            const base64Data = btoa(binary);
 
             const apiKey = process.env.GOOGLE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
             if (!apiKey) throw new Error("Missing Gemini API Key in environment variables.");

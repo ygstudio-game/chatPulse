@@ -8,11 +8,11 @@ import { Loader2, MessageCircle, ChevronLeft, Users, Sparkles, X } from "lucide-
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { MessageInput } from "./message-input";
-import { MessageList } from "./message-list";
+import { ChatView } from "./views/chat-view";
+import { VideoCallView } from "./views/video-call-view";
+import { VoiceCallView } from "./views/voice-call-view";
 import { TypingIndicator } from "./typing-indicator";
 import { MarkdownRenderer } from "./markdown-renderer";
-import { VideoRoom } from "./video-room";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     DropdownMenu,
@@ -102,7 +102,7 @@ export const ChatArea = () => {
     return (
         <div className="flex-1 flex flex-col h-full md:h-[calc(100vh-1rem)] md:m-2 bg-background md:rounded-3xl border-x-0 md:border border-border md:shadow-2xl relative overflow-hidden z-20">
             {/* Header */}
-            <header className="h-[72px] border-b border-border flex items-center px-4 md:px-6 justify-between bg-secondary/20 backdrop-blur-2xl z-30 sticky top-0 md:rounded-t-3xl">
+            <header className="h-[72px] shrink-0 border-b border-border flex items-center px-4 md:px-6 justify-between bg-secondary/80 backdrop-blur-3xl z-50 relative md:rounded-t-3xl">
                 <div className="flex items-center gap-4">
                     <button
                         onClick={() => setSelectedConversationId(undefined)}
@@ -244,30 +244,49 @@ export const ChatArea = () => {
                 )}
             </AnimatePresence>
 
-            {/* Live Call Overlay (Accepted State) */}
-            <AnimatePresence>
-                {conversation.ongoingCall?.status === "accepted" && (
-                    <motion.div
-                        key="accepted-call"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="absolute inset-0 z-40 bg-black flex flex-col"
-                    >
-                        <VideoRoom
-                            chatId={conversationId}
-                            user={{ id: me?._id || "", name: me?.name || "Unknown" }}
-                            activeCallId={`call_${conversationId}`} // the room name
-                            video={conversation.ongoingCall.type === "video"}
-                        />
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            {/* Main Chat View (Persistent Layer) */}
-            <div className="flex-1 flex flex-col min-h-0 relative">
-                <MessageList conversationId={conversationId} />
-                <MessageInput conversationId={conversationId} />
+            {/* Central Switchboard Layer */}
+            <div className="flex-1 min-h-0 relative w-full flex flex-col bg-background">
+                <AnimatePresence mode="wait">
+                    {conversation.ongoingCall?.status === "accepted" ? (
+                        conversation.ongoingCall.type === "video" ? (
+                            <motion.div
+                                key="video-call"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="absolute inset-0 z-40 bg-black flex flex-col"
+                            >
+                                <VideoCallView
+                                    chatId={conversationId}
+                                    user={{ id: me?._id || "", name: me?.name || "Unknown" }}
+                                />
+                            </motion.div>
+                        ) : (
+                            <motion.div
+                                key="voice-call"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="absolute inset-0 z-40 bg-background/95 backdrop-blur-xl flex flex-col"
+                            >
+                                <VoiceCallView
+                                    chatId={conversationId}
+                                    user={{ id: me?._id || "", name: me?.name || "Unknown" }}
+                                />
+                            </motion.div>
+                        )
+                    ) : (
+                        <motion.div
+                            key="chat-view"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="absolute inset-0 z-0 flex flex-col"
+                        >
+                            <ChatView conversationId={conversationId} />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
         </div>
     );

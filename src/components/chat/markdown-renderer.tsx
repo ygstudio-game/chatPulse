@@ -7,7 +7,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { cn } from "@/lib/utils";
 import { FileText, Download, Play, Music, Trash2, Loader2, X, Maximize2 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { ImageLightbox } from "./image-lightbox";
 
 interface MarkdownRendererProps {
     content?: string;
@@ -271,60 +271,13 @@ export const MarkdownRenderer = ({ content, mediaUrl, mediaType, isMe, isDeleted
                 </div>
             )}
 
-            <AnimatePresence>
-                {isPreviewOpen && mediaUrl && !isUploading && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-10">
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            onClick={() => setIsPreviewOpen(false)}
-                            className="absolute inset-0 bg-background/90 backdrop-blur-xl"
-                        />
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                            className="relative max-w-6xl w-full max-h-[90vh] flex flex-col items-center justify-center pointer-events-none"
-                        >
-                            <div className="absolute -top-4 -right-4 md:top-0 md:right-0 p-4 flex gap-3 pointer-events-auto z-50">
-                                <a
-                                    href={mediaUrl}
-                                    download={fileName || "download"}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="p-3 bg-secondary/80 hover:bg-secondary rounded-full text-foreground transition-all backdrop-blur-md border border-border shadow-xl hover:scale-105 active:scale-95"
-                                >
-                                    <Download className="h-5 w-5" />
-                                </a>
-                                <button
-                                    onClick={() => setIsPreviewOpen(false)}
-                                    className="p-3 bg-secondary/80 hover:bg-secondary rounded-full text-foreground transition-all backdrop-blur-md border border-border shadow-xl hover:scale-105 active:scale-95"
-                                >
-                                    <X className="h-5 w-5" />
-                                </button>
-                            </div>
-
-                            {mediaType === "image" && (
-                                <img
-                                    src={mediaUrl}
-                                    alt={fileName || "Preview"}
-                                    className="max-h-[85vh] max-w-full rounded-[2xl] object-contain shadow-2xl pointer-events-auto ring-1 ring-border bg-black/5 dark:bg-white/5"
-                                />
-                            )}
-                            {mediaType === "video" && (
-                                <video
-                                    src={mediaUrl}
-                                    controls
-                                    autoPlay
-                                    className="max-h-[85vh] max-w-full rounded-[2xl] object-contain shadow-2xl pointer-events-auto ring-1 ring-border bg-black/5 dark:bg-white/5"
-                                />
-                            )}
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
+            <ImageLightbox
+                isOpen={isPreviewOpen && !!mediaUrl && !isUploading}
+                onClose={() => setIsPreviewOpen(false)}
+                mediaUrl={mediaUrl!}
+                fileName={fileName}
+                mediaType={mediaType === "image" || mediaType === "video" ? mediaType : undefined}
+            />
         </div>
     );
 };
