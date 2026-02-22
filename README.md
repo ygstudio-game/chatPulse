@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Pulse - Advanced AI Chat Platform
 
-## Getting Started
+Pulse is a high-fidelity, real-time chat application built with **Next.js**, **Convex**, and **Clerk**, featuring advanced AI capabilities and rich media support.
 
-First, run the development server:
+## ✨ Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **AI Smart Replies**: Context-aware suggestions powered by Gemini 2.0 Flash.
+- **Voice Notes**: Native browser recording with AI-powered transcription.
+- **Rich Media**: High-performance image, video, and PDF rendering with background uploads.
+- **Group Chats**: Real-time group creation and management.
+- **Real-time Calls**: Audio and video calling integrated via LiveKit.
+- **Mobile-First**: Fully responsive, glassmorphic UI optimized for all devices.
+- **Themes**: Premium Light and Dark modes with automatic synchronization.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Getting Started
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Local Development
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **Install Dependencies**:
+   ```bash
+   npm install
+   ```
 
-## Learn More
+2. **Configure Environment**:
+   Copy `.env.local.example` to `.env.local` (or see `DEPLOYMENT.md`).
 
-To learn more about Next.js, take a look at the following resources:
+3. **Run Convex Dev**:
+   ```bash
+   npx convex dev
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+4. **Start Next.js**:
+   ```bash
+   npm run dev
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Docker Deployment
 
-## Deploy on Vercel
+Pulse is ready for containerized deployment.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. **Build and Run**:
+   ```bash
+   docker compose up --build
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+2. **Manual Build**:
+   ```bash
+   docker build -t pulse-app .
+   ```
+
+## 🛠️ Tech Stack
+
+- **Framework**: Next.js 15+ (App Router)
+- **Database/Backend**: Convex
+- **Auth**: Clerk
+- **AI**: Google Gemini (GenAI)
+- **Calling**: LiveKit
+- **Styling**: Tailwind CSS + Framer Motion
+- **State**: Zustand
+
+---
+Built with ❤️ during the Tars Coding Assignment.
+

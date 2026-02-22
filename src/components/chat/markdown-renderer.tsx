@@ -1,0 +1,330 @@
+"use client";
+
+import { useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { cn } from "@/lib/utils";
+import { FileText, Download, Play, Music, Trash2, Loader2, X, Maximize2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+
+interface MarkdownRendererProps {
+    content?: string;
+    mediaUrl?: string;
+    mediaType?: "image" | "video" | "pdf" | "audio";
+    isMe: boolean;
+    isDeleted?: boolean;
+    fileName?: string;
+    isUploading?: boolean;
+    transcript?: string;
+}
+
+export const MarkdownRenderer = ({ content, mediaUrl, mediaType, isMe, isDeleted, fileName, isUploading, transcript }: MarkdownRendererProps) => {
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
+    if (isDeleted) {
+        return (
+            <div className="flex items-center gap-2 text-muted-foreground italic py-1">
+                <Trash2 className="h-3 w-3" />
+                <span className="text-xs">This message was deleted</span>
+            </div>
+        );
+    }
+
+    const renderMedia = () => {
+        if (!mediaUrl && !isUploading) return null;
+
+        const loadingOverlay = (
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/60 backdrop-blur-[2px] rounded-2xl animate-in fade-in duration-300">
+                <Loader2 className="h-6 w-6 animate-spin text-primary mb-2" />
+                <span className="text-[10px] font-semibold text-primary uppercase tracking-widest">Uploading</span>
+            </div>
+        );
+
+        switch (mediaType) {
+            case "image":
+                return (
+                    <div className="relative group/media overflow-hidden rounded-2xl bg-muted/20 border shadow-sm max-w-full md:max-w-sm">
+                        {isUploading && loadingOverlay}
+                        <img
+                            src={mediaUrl || "/placeholder.png"}
+                            alt={fileName || "Attached image"}
+                            onClick={() => !isUploading && setIsPreviewOpen(true)}
+                            className={cn(
+                                "max-w-full max-h-[400px] cursor-pointer object-cover rounded-2xl transition-all duration-500",
+                                !isUploading && "group-hover/media:scale-[1.02]",
+                                isUploading && "opacity-50 blur-sm"
+                            )}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover/media:opacity-100 transition-opacity pointer-events-none flex flex-col justify-end p-4">
+                            <span className="text-white text-xs font-semibold truncate mb-1">
+                                {fileName || "Image"}
+                            </span>
+                            <div className="flex items-center gap-2 pointer-events-auto">
+                                <span className="text-white/80 text-[10px] backdrop-blur-md bg-white/10 px-2 py-0.5 rounded-full border border-white/20 uppercase tracking-tighter">
+                                    {mediaType}
+                                </span>
+                                <a
+                                    href={mediaUrl || "#"}
+                                    download={fileName || "image"}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="p-1.5 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-md transition-colors"
+                                >
+                                    <Download className="h-3 w-3 text-white" />
+                                </a>
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); setIsPreviewOpen(true); }}
+                                    className="p-1.5 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-md transition-colors"
+                                >
+                                    <Maximize2 className="h-3 w-3 text-white" />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            case "video":
+                return (
+                    <div className="relative max-w-full md:max-w-sm rounded-2xl overflow-hidden border bg-secondary/20 shadow-sm group/video">
+                        {isUploading && loadingOverlay}
+                        <video
+                            controls={!isUploading}
+                            src={mediaUrl}
+                            className={cn(
+                                "w-full h-full block rounded-2xl transition-transform duration-500",
+                                !isUploading && "group-hover/video:scale-[1.01]",
+                                isUploading && "opacity-50 blur-sm"
+                            )}
+                            poster={mediaUrl ? mediaUrl + "#t=0.5" : undefined}
+                        />
+                        <div className="absolute top-2 left-2 opacity-0 group-hover/video:opacity-100 transition-opacity flex items-center gap-2 pointer-events-auto">
+                            <span className="text-white text-[10px] font-medium backdrop-blur-md bg-black/40 px-2 py-1 rounded-full border border-white/10 truncate max-w-[150px] inline-block">
+                                {fileName || "Video"}
+                            </span>
+                            <a
+                                href={mediaUrl || "#"}
+                                download={fileName || "video"}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="p-1.5 bg-black/40 hover:bg-black/60 rounded-full backdrop-blur-md transition-colors border border-white/10"
+                            >
+                                <Download className="h-3 w-3 text-white" />
+                            </a>
+                            <button
+                                onClick={(e) => { e.stopPropagation(); setIsPreviewOpen(true); }}
+                                className="p-1.5 bg-black/40 hover:bg-black/60 rounded-full backdrop-blur-md transition-colors border border-white/10"
+                            >
+                                <Maximize2 className="h-3 w-3 text-white" />
+                            </button>
+                        </div>
+                    </div>
+                );
+            case "pdf":
+                const downloadUrl = mediaUrl ? (mediaUrl.includes('?') ? `${mediaUrl}&download=true` : `${mediaUrl}?download=true`) : "#";
+                return (
+                    <a
+                        href={isUploading ? undefined : downloadUrl}
+                        download={fileName || "document.pdf"}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={cn(
+                            "flex items-center gap-4 p-4 rounded-2xl border transition-all shadow-sm relative overflow-hidden",
+                            !isUploading && "hover:scale-[1.02] active:scale-[0.98]",
+                            isMe
+                                ? "bg-white/10 border-white/20 text-white hover:bg-white/20"
+                                : "bg-background border-border text-foreground hover:bg-secondary",
+                            isUploading && "opacity-80 pointer-events-none"
+                        )}
+                    >
+                        {isUploading && (
+                            <div className="absolute inset-x-0 bottom-0 h-1 bg-primary/20">
+                                <div className="h-full bg-primary animate-progress origin-left w-full" />
+                            </div>
+                        )}
+                        <div className={cn(
+                            "p-3 rounded-xl shadow-inner shrink-0",
+                            isMe ? "bg-white/20" : "bg-secondary text-primary"
+                        )}>
+                            <FileText className="h-6 w-6" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <div className="text-sm font-semibold truncate uppercase tracking-tight">
+                                {fileName || "PDF Document"}
+                            </div>
+                            <div className="text-[10px] opacity-60 truncate">
+                                {isUploading ? "Uploading file..." : "Click to view/download"}
+                            </div>
+                        </div>
+                        <div className={cn(
+                            "p-2 rounded-lg transition-colors",
+                            isMe ? "bg-white/10" : "bg-muted"
+                        )}>
+                            {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4 opacity-70" />}
+                        </div>
+                    </a>
+                );
+            case "audio":
+                return (
+                    <div className={cn(
+                        "rounded-2xl p-3 flex items-center gap-3 shadow-sm border relative overflow-hidden",
+                        isMe ? "bg-white/10 border-white/20" : "bg-muted/30",
+                        isUploading && "opacity-80"
+                    )}>
+                        {isUploading && (
+                            <div className="absolute inset-x-0 bottom-0 h-[2px] bg-primary/20">
+                                <div className="h-full bg-primary animate-progress origin-left w-full" />
+                            </div>
+                        )}
+                        <div className={cn(
+                            "h-10 w-10 rounded-full flex items-center justify-center shadow-md",
+                            isMe ? "bg-white/20" : "bg-primary text-primary-foreground"
+                        )}>
+                            {isUploading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Music className="h-5 w-5" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            {isUploading ? (
+                                <div className="space-y-1">
+                                    <div className="text-[10px] font-bold uppercase tracking-widest text-primary">Voice Note</div>
+                                    <div className="text-[8px] opacity-60 animate-pulse truncate">{fileName}</div>
+                                </div>
+                            ) : (
+                                <div className="space-y-2">
+                                    <audio
+                                        src={mediaUrl}
+                                        controls
+                                        className="h-9 max-w-[220px]"
+                                    />
+                                    {transcript && (
+                                        <div className={cn(
+                                            "mt-1 p-2 rounded-lg text-xs italic",
+                                            isMe ? "bg-black/10 text-white/90" : "bg-black/5 text-muted-foreground"
+                                        )}>
+                                            "{transcript}"
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                );
+            default:
+                return null;
+        }
+    };
+
+    return (
+        <div className="flex flex-col gap-2">
+            {renderMedia()}
+            {content && (
+                <div className={cn(
+                    "prose prose-sm max-w-none dark:prose-invert break-words",
+                    isMe
+                        ? "prose-p:text-primary-foreground prose-a:text-primary-foreground prose-strong:text-primary-foreground prose-code:text-primary-foreground marker:text-primary-foreground"
+                        : "prose-p:text-foreground prose-a:text-primary prose-strong:text-foreground prose-code:text-foreground marker:text-primary",
+                    "prose-p:m-0 prose-p:leading-relaxed",
+                    "prose-pre:m-0 prose-pre:bg-transparent prose-pre:p-0"
+                )}>
+                    <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                            code({ node, inline, className, children, ...props }: any) {
+                                const match = /language-(\w+)/.exec(className || "");
+
+                                if (!inline && match) {
+                                    return (
+                                        <div className="mt-2 mb-2 rounded-md overflow-hidden bg-[#1E1E1E] text-sm shadow-sm border border-black/10">
+                                            <div className="flex items-center justify-between px-3 py-1 bg-black/40 text-xs text-slate-300 font-mono select-none">
+                                                {match[1]}
+                                            </div>
+                                            <SyntaxHighlighter
+                                                style={vscDarkPlus as any}
+                                                language={match[1]}
+                                                PreTag="div"
+                                                customStyle={{ margin: 0, padding: "1rem", background: "transparent" }}
+                                                {...props}
+                                            >
+                                                {String(children).replace(/\n$/, "")}
+                                            </SyntaxHighlighter>
+                                        </div>
+                                    );
+                                }
+
+                                return (
+                                    <code className={cn("bg-black/10 dark:bg-white/10 rounded px-1.5 py-0.5", className)} {...props}>
+                                        {children}
+                                    </code>
+                                );
+                            },
+                            a({ node, children, ...props }: any) {
+                                return (
+                                    <a target="_blank" rel="noreferrer" className="underline underline-offset-2 hover:opacity-80 font-medium" {...props}>
+                                        {children}
+                                    </a>
+                                );
+                            }
+                        }}
+                    >
+                        {content}
+                    </ReactMarkdown>
+                </div>
+            )}
+
+            <AnimatePresence>
+                {isPreviewOpen && mediaUrl && !isUploading && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-10">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setIsPreviewOpen(false)}
+                            className="absolute inset-0 bg-background/90 backdrop-blur-xl"
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                            className="relative max-w-6xl w-full max-h-[90vh] flex flex-col items-center justify-center pointer-events-none"
+                        >
+                            <div className="absolute -top-4 -right-4 md:top-0 md:right-0 p-4 flex gap-3 pointer-events-auto z-50">
+                                <a
+                                    href={mediaUrl}
+                                    download={fileName || "download"}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="p-3 bg-secondary/80 hover:bg-secondary rounded-full text-foreground transition-all backdrop-blur-md border border-border shadow-xl hover:scale-105 active:scale-95"
+                                >
+                                    <Download className="h-5 w-5" />
+                                </a>
+                                <button
+                                    onClick={() => setIsPreviewOpen(false)}
+                                    className="p-3 bg-secondary/80 hover:bg-secondary rounded-full text-foreground transition-all backdrop-blur-md border border-border shadow-xl hover:scale-105 active:scale-95"
+                                >
+                                    <X className="h-5 w-5" />
+                                </button>
+                            </div>
+
+                            {mediaType === "image" && (
+                                <img
+                                    src={mediaUrl}
+                                    alt={fileName || "Preview"}
+                                    className="max-h-[85vh] max-w-full rounded-[2xl] object-contain shadow-2xl pointer-events-auto ring-1 ring-border bg-black/5 dark:bg-white/5"
+                                />
+                            )}
+                            {mediaType === "video" && (
+                                <video
+                                    src={mediaUrl}
+                                    controls
+                                    autoPlay
+                                    className="max-h-[85vh] max-w-full rounded-[2xl] object-contain shadow-2xl pointer-events-auto ring-1 ring-border bg-black/5 dark:bg-white/5"
+                                />
+                            )}
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+};
