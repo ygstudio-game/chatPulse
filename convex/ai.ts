@@ -226,7 +226,7 @@ Respond ONLY with the JSON array:`;
 function parseAIArray(text: string): string[] {
     try {
         // Find JSON array pattern in text
-        const match = text.match(/\[.*\]/s);
+        const match = text.match(/\[[\s\S]*\]/);
         if (match) {
             const arr = JSON.parse(match[0]);
             if (Array.isArray(arr)) return arr.slice(0, 3);
