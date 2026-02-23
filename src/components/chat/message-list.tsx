@@ -265,15 +265,19 @@ export const MessageList = ({ conversationId }: MessageListProps) => {
                                     {!message.deleted && (
                                         <div className="flex items-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-200">
                                             {!isMe && (
-                                                <div className="relative group/picker">
-                                                    <button
-                                                        className="p-2 hover:bg-secondary/80 rounded-full text-muted-foreground hover:text-accent-mint transition-colors cursor-pointer relative z-40"
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <button
+                                                            className="p-2 hover:bg-secondary/80 rounded-full text-muted-foreground hover:text-accent-mint transition-colors cursor-pointer relative z-40"
+                                                        >
+                                                            <Smile className="h-[18px] w-[18px]" />
+                                                        </button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent
+                                                        side="top"
+                                                        align="center"
+                                                        className="flex flex-wrap w-[180px] justify-center gap-1.5 bg-secondary/95 backdrop-blur-xl border border-border shadow-2xl rounded-2xl p-2.5 z-[70]"
                                                     >
-                                                        <Smile className="h-[18px] w-[18px]" />
-                                                    </button>
-                                                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 pointer-events-none group-hover/picker:opacity-100 group-hover/picker:pointer-events-auto transition-all duration-200 flex flex-wrap w-[180px] justify-center gap-1.5 bg-secondary/95 backdrop-blur-xl border border-border shadow-2xl rounded-2xl p-2.5 z-[60] origin-bottom scale-95 group-hover/picker:scale-100">
-                                                        {/* Invisible bridge to prevent hover loss */}
-                                                        <div className="absolute -bottom-4 left-0 right-0 h-6 bg-transparent" />
                                                         {["👍", "❤️", "😂", "😮", "😢"].map((emoji) => (
                                                             <button
                                                                 key={emoji}
@@ -283,8 +287,8 @@ export const MessageList = ({ conversationId }: MessageListProps) => {
                                                                 {emoji}
                                                             </button>
                                                         ))}
-                                                    </div>
-                                                </div>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
                                             )}
 
                                             <button
@@ -323,7 +327,7 @@ export const MessageList = ({ conversationId }: MessageListProps) => {
                                     )}
                                 </div>
                                 <div className={cn(
-                                    "flex items-center gap-1.5 mt-1.5 px-1.5 transition-opacity duration-300 opacity-60 group-hover:opacity-100",
+                                    "flex items-center gap-1.5 mt-1.5 px-1.5 transition-opacity duration-300 opacity-100 md:opacity-60 md:group-hover:opacity-100",
                                     isMe ? "justify-end" : "justify-start"
                                 )}>
                                     <span className="text-[11px] font-medium text-text-secondary tracking-wide">

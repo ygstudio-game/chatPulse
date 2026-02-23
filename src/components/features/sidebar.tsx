@@ -50,7 +50,7 @@ export const Sidebar = () => {
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }} /* Spring-like ease out */
             className={cn(
-                "flex flex-col h-full md:h-[calc(100vh-1rem)] md:m-2 bg-secondary/80 backdrop-blur-xl border-x-0 md:border border-border shadow-2xl shrink-0 transition-all z-10",
+                "flex flex-col h-full md:h-[calc(100vh-1rem)] md:m-2 bg-secondary/80 backdrop-blur-xl border-x-0 md:border border-border shadow-2xl shrink-0 transition-all z-10 overflow-hidden",
                 // Mobile: Full width, Desktop: Fixed width with rounded corners
                 "w-full md:w-[340px] md:rounded-3xl",
                 selectedConversationId ? "hidden md:flex" : "flex"
@@ -110,7 +110,7 @@ export const Sidebar = () => {
                 </div>
             </div>
 
-            <ScrollArea className="flex-1 px-3">
+            <ScrollArea className="flex-1 px-3 min-h-0">
                 <div className="p-1 space-y-1.5 pb-20 md:pb-4">
                     {activeTab === "chats" ? (
                         <>

@@ -117,7 +117,7 @@ export const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }: CreateGrou
                         </div>
 
                         {/* User List */}
-                        <ScrollArea className="flex-1 px-4 py-2">
+                        <ScrollArea className="flex-1 px-4 py-2 min-h-0">
                             {users?.map((user: any, index: number) => {
                                 const isSelected = selectedUsers.includes(user._id);
                                 return (
