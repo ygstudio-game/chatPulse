@@ -167,7 +167,7 @@ export const ChatArea = () => {
                         onClick={async () => await startCall({ conversationId, type: "audio" })}
                         disabled={!!conversation.ongoingCall}
                         className={cn(
-                            "p-2 rounded-full transition-all active:scale-95",
+                            "p-2 rounded-full transition-all active:scale-95 relative z-10",
                             conversation.ongoingCall
                                 ? "text-muted-foreground/50 cursor-not-allowed"
                                 : "hover:bg-secondary/80 text-muted-foreground hover:text-accent-emerald"
@@ -179,7 +179,7 @@ export const ChatArea = () => {
                         onClick={async () => await startCall({ conversationId, type: "video" })}
                         disabled={!!conversation.ongoingCall}
                         className={cn(
-                            "p-2 rounded-full transition-all active:scale-95",
+                            "p-2 rounded-full transition-all active:scale-95 relative z-10",
                             conversation.ongoingCall
                                 ? "text-muted-foreground/50 cursor-not-allowed"
                                 : "hover:bg-secondary/80 text-muted-foreground hover:text-accent-emerald"

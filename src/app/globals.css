@@ -213,3 +213,30 @@
     @apply bg-background text-foreground selection:bg-accent-emerald/30 transition-colors duration-500;
   }
 }
+
+/* LiveKit Overrides */
+.lk-video-conference {
+  height: 100% !important;
+  border: none !important;
+}
+
+.lk-control-bar {
+  z-index: 100 !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background: rgba(0, 0, 0, 0.7) !important;
+  backdrop-filter: blur(12px) !important;
+  padding: 1rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.lk-video-conference-inner {
+  height: 100% !important;
+}
+
+.lk-focus-layout {
+  height: 100% !important;
+}
+
+.lk-grid-layout {
+  height: 100% !important;
+}

@@ -47,8 +47,8 @@ export function GlobalCallOverlay() {
                         <h3 className="text-lg md:text-xl font-medium text-white/80">Calling {activeCallConv.otherUser?.name || "Group"}...</h3>
 
                         <div className="relative">
-                            <div className="absolute inset-0 -m-8 border border-white/10 rounded-full animate-ping" style={{ animationDuration: '3s' }} />
-                            <div className="absolute inset-0 -m-4 border border-white/20 rounded-full animate-ping" style={{ animationDuration: '3s', animationDelay: '1s' }} />
+                            <div className="absolute inset-0 -m-8 border border-white/10 rounded-full animate-ping pointer-events-none" style={{ animationDuration: '3s' }} />
+                            <div className="absolute inset-0 -m-4 border border-white/20 rounded-full animate-ping pointer-events-none" style={{ animationDuration: '3s', animationDelay: '1s' }} />
                             <Avatar className="h-28 w-28 md:h-32 md:w-32 border-4 border-accent-mint ring-4 ring-accent-mint/30 animate-pulse shadow-2xl relative z-10">
                                 <AvatarImage src={activeCallConv.isGroup ? "" : activeCallConv.otherUser?.imageUrl} className="object-cover" />
                                 <AvatarFallback className="bg-primary text-primary-foreground text-3xl font-semibold">
@@ -69,7 +69,7 @@ export function GlobalCallOverlay() {
                                     setIsDeclining(false);
                                 }
                             }}
-                            className="h-16 w-16 rounded-full bg-accent-rose hover:bg-accent-rose/80 text-white shadow-2xl hover:scale-105 active:scale-95 transition-all mt-8"
+                            className="h-16 w-16 rounded-full bg-accent-rose hover:bg-accent-rose/80 text-white shadow-2xl hover:scale-105 active:scale-95 transition-all mt-8 relative z-20"
                         >
                             {isDeclining ? <Loader2 className="h-8 w-8 animate-spin" /> : <Phone className="h-8 w-8 fill-current rotate-[135deg]" />}
                         </Button>
@@ -83,8 +83,8 @@ export function GlobalCallOverlay() {
                         </div>
 
                         <div className="relative">
-                            <div className="absolute inset-0 -m-12 border-2 border-accent-emerald/40 rounded-full animate-ping" style={{ animationDuration: '2s' }} />
-                            <div className="absolute inset-0 -m-6 border-2 border-accent-emerald/60 rounded-full animate-ping" style={{ animationDuration: '2s', animationDelay: '0.5s' }} />
+                            <div className="absolute inset-0 -m-12 border-2 border-accent-emerald/40 rounded-full animate-ping pointer-events-none" style={{ animationDuration: '2s' }} />
+                            <div className="absolute inset-0 -m-6 border-2 border-accent-emerald/60 rounded-full animate-ping pointer-events-none" style={{ animationDuration: '2s', animationDelay: '0.5s' }} />
                             <Avatar className="h-28 w-28 md:h-32 md:w-32 border-4 border-background shadow-2xl relative z-10">
                                 <AvatarImage src={activeCallConv.isGroup ? "" : activeCallConv.otherUser?.imageUrl} className="object-cover" />
                                 <AvatarFallback className="bg-primary text-primary-foreground text-3xl font-semibold">
@@ -107,7 +107,7 @@ export function GlobalCallOverlay() {
                                             setIsDeclining(false);
                                         }
                                     }}
-                                    className="h-16 w-16 rounded-full bg-accent-rose hover:bg-accent-rose/90 text-white shadow-2xl hover:scale-105 active:scale-95 transition-transform border-2 border-white/10"
+                                    className="h-16 w-16 rounded-full bg-accent-rose hover:bg-accent-rose/90 text-white shadow-2xl hover:scale-105 active:scale-95 transition-transform border-2 border-white/10 relative z-20"
                                 >
                                     {isDeclining ? <Loader2 className="h-7 w-7 animate-spin" /> : <Phone className="h-7 w-7 fill-current rotate-[135deg]" />}
                                 </Button>
@@ -116,7 +116,7 @@ export function GlobalCallOverlay() {
                             <div className="flex flex-col items-center gap-3">
                                 <Button
                                     onClick={handleAccept}
-                                    className="h-16 w-16 rounded-full bg-accent-emerald hover:bg-accent-emerald/90 text-white shadow-[0_0_30px_rgba(16,185,129,0.5)] hover:scale-105 active:scale-95 transition-transform border-2 border-white/20 animate-pulse"
+                                    className="h-16 w-16 rounded-full bg-accent-emerald hover:bg-accent-emerald/90 text-white shadow-[0_0_30px_rgba(16,185,129,0.5)] hover:scale-105 active:scale-95 transition-transform border-2 border-white/20 animate-pulse relative z-20"
                                 >
                                     {call.type === 'video' ? (
                                         <Video className="h-7 w-7 fill-current" />

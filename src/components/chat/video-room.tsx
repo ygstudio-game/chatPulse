@@ -47,7 +47,7 @@ export const VideoRoom = ({ chatId, user, activeCallId, video }: VideoRoomProps)
     }
 
     return (
-        <div className="flex-1 flex flex-col bg-black">
+        <div className="flex-1 flex flex-col bg-black h-full overflow-hidden relative">
             <LiveKitRoom
                 video={video}
                 audio={true}
