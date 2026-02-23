@@ -99,8 +99,9 @@ export const MarkdownRenderer = ({ content, mediaUrl, mediaType, isMe, isDeleted
                         <video
                             controls={!isUploading}
                             src={mediaUrl}
+                            onClick={() => !isUploading && setIsPreviewOpen(true)}
                             className={cn(
-                                "max-w-full max-h-[350px] md:max-h-[450px] block rounded-2xl transition-transform duration-500",
+                                "max-w-full max-h-[350px] md:max-h-[450px] block rounded-2xl transition-transform duration-500 cursor-pointer",
                                 !isUploading && "group-hover/video:scale-[1.01]",
                                 isUploading && "opacity-50 blur-sm"
                             )}

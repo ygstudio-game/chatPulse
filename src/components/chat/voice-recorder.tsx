@@ -17,9 +17,12 @@ export const VoiceRecorder = ({ onRecordingComplete, onCancel }: VoiceRecorderPr
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     const chunksRef = useRef<Blob[]>([]);
+    const isRecordingRef = useRef(false);
+    const isCancelledRef = useRef(false);
 
     const startRecording = async () => {
         try {
+            isCancelledRef.current = false;
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             const mediaRecorder = new MediaRecorder(stream);
             mediaRecorderRef.current = mediaRecorder;
@@ -30,12 +33,16 @@ export const VoiceRecorder = ({ onRecordingComplete, onCancel }: VoiceRecorderPr
             };
 
             mediaRecorder.onstop = () => {
-                const blob = new Blob(chunksRef.current, { type: "audio/webm" });
-                onRecordingComplete(blob);
+                if (!isCancelledRef.current && chunksRef.current.length > 0) {
+                    const blob = new Blob(chunksRef.current, { type: "audio/webm" });
+                    onRecordingComplete(blob);
+                }
                 stream.getTracks().forEach(track => track.stop());
+                isRecordingRef.current = false;
             };
 
             mediaRecorder.start();
+            isRecordingRef.current = true;
             setIsRecording(true);
             setRecordingTime(0);
             timerRef.current = setInterval(() => {
@@ -48,11 +55,21 @@ export const VoiceRecorder = ({ onRecordingComplete, onCancel }: VoiceRecorderPr
     };
 
     const stopRecording = () => {
-        if (mediaRecorderRef.current && isRecording) {
+        if (mediaRecorderRef.current && isRecordingRef.current) {
             mediaRecorderRef.current.stop();
             setIsRecording(false);
             if (timerRef.current) clearInterval(timerRef.current);
         }
+    };
+
+    const handleCancel = () => {
+        isCancelledRef.current = true;
+        if (mediaRecorderRef.current && isRecordingRef.current) {
+            mediaRecorderRef.current.stop();
+        }
+        setIsRecording(false);
+        if (timerRef.current) clearInterval(timerRef.current);
+        onCancel();
     };
 
     const formatTime = (seconds: number) => {
@@ -98,7 +115,7 @@ export const VoiceRecorder = ({ onRecordingComplete, onCancel }: VoiceRecorderPr
                 <Button
                     size="icon"
                     variant="ghost"
-                    onClick={onCancel}
+                    onClick={handleCancel}
                     className="text-muted-foreground hover:text-destructive transition-colors h-9 w-9 rounded-lg"
                 >
                     <Trash2 className="h-4 w-4" />
