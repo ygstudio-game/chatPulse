@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Download, X } from "lucide-react";
 import { useEffect } from "react";
+import { createPortal } from "react-dom";
 
 interface ImageLightboxProps {
     isOpen: boolean;
@@ -25,10 +26,12 @@ export const ImageLightbox = ({ isOpen, onClose, mediaUrl, fileName, mediaType }
         };
     }, [isOpen]);
 
-    return (
+    if (typeof document === "undefined") return null;
+
+    return createPortal(
         <AnimatePresence>
             {isOpen && mediaUrl && (
-                <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/98 backdrop-blur-3xl">
+                <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black/98 backdrop-blur-3xl shadow-2xl">
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -98,6 +101,7 @@ export const ImageLightbox = ({ isOpen, onClose, mediaUrl, fileName, mediaType }
                     <div className="h-safe-bottom" />
                 </div>
             )}
-        </AnimatePresence>
+        </AnimatePresence>,
+        document.body
     );
 };
