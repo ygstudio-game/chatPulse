@@ -181,21 +181,7 @@ export const markRead = mutation({
             await ctx.db.patch(membership._id, { unreadCount: 0 });
         }
 
-        // 2. Process the WhatsApp-style double-blue ticks on individual messages
-        const unreadMessages = await ctx.db
-            .query("messages")
-            .withIndex("by_conversationId", (q) => q.eq("conversationId", args.conversationId))
-            .filter((q) => q.and(
-                q.neq(q.field("senderId"), me._id),
-                q.neq(q.field("receipt"), "read")
-            ))
-            .collect();
 
-        await Promise.all(
-            unreadMessages.map((msg) =>
-                ctx.db.patch(msg._id, { receipt: "read" })
-            )
-        );
     },
 });
 

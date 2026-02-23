@@ -8,10 +8,10 @@ import { cn } from "@/lib/utils";
 interface MessageReactionsProps {
     messageId: Id<"messages">;
     senderId: Id<"users">;
+    reactions?: { emoji: string; count: number; userIds: string[] }[];
 }
 
-export const MessageReactions = ({ messageId, senderId }: MessageReactionsProps) => {
-    const reactions = useQuery(api.messages.getReactions, { messageId });
+export const MessageReactions = ({ messageId, senderId, reactions }: MessageReactionsProps) => {
     const addReaction = useMutation(api.messages.addReaction);
     const me = useQuery(api.users.getMe);
     const isMe = me?._id === senderId;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery, useMutation } from "convex/react";
+import { useQuery, useMutation, usePaginatedQuery } from "convex/react";
 import { api } from "@convex/_generated/api";
 import { Id } from "@convex/_generated/dataModel";
 import { formatMessageTimestamp, cn } from "@/lib/utils";
@@ -24,7 +24,12 @@ interface MessageListProps {
 }
 
 export const MessageList = ({ conversationId }: MessageListProps) => {
-    const messages = useQuery(api.messages.list, conversationId ? { conversationId } : "skip");
+    const { results, status, loadMore } = usePaginatedQuery(
+        api.messages.list,
+        conversationId ? { conversationId } : "skip",
+        { initialNumItems: 50 }
+    );
+    const messages = [...results].reverse();
     const me = useQuery(api.users.getMe);
     const deleteMessage = useMutation(api.messages.deleteMessage);
     const deleteForMe = useMutation(api.messages.deleteForMe);
@@ -49,6 +54,25 @@ export const MessageList = ({ conversationId }: MessageListProps) => {
     //         }
     //     }
     // }, [messages, conversationId, markRead]);
+
+    const loadMoreRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const loadMoreObserver = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting && status === "CanLoadMore") {
+                    loadMore(50);
+                }
+            },
+            { threshold: 0.1 }
+        );
+
+        if (loadMoreRef.current) {
+            loadMoreObserver.observe(loadMoreRef.current);
+        }
+
+        return () => loadMoreObserver.disconnect();
+    }, [status, loadMore]);
 
     // Track scroll logic separately
     useEffect(() => {
@@ -162,6 +186,12 @@ export const MessageList = ({ conversationId }: MessageListProps) => {
                 onScroll={handleScroll}
                 className={cn("pb-48 md:pb-30 flex-1 overflow-y-auto overflow-x-hidden px-4 md:pl-6 md:pr-6 md:pt-6 space-y-6")}
             >
+                <div ref={loadMoreRef} className="h-4 w-full" />
+                {status === "LoadingMore" && (
+                    <div className="flex justify-center py-2">
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-accent-mint" />
+                    </div>
+                )}
                 <AnimatePresence mode="popLayout">
                     {messages.map((message: any, index: number) => {
                         const isMe = message.senderId === me?._id;
@@ -228,6 +258,7 @@ export const MessageList = ({ conversationId }: MessageListProps) => {
                                         <MessageReactions
                                             messageId={message._id}
                                             senderId={message.senderId}
+                                            reactions={message.reactions}
                                         />
                                     </div>
 

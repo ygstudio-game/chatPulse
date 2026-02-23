@@ -11,7 +11,8 @@ const schema = defineSchema({
         isOnline: v.boolean(),
     })
         .index("by_clerkId", ["clerkId"])
-        .index("by_name", ["name"]),
+        .index("by_name", ["name"])
+        .searchIndex("search_name", { searchField: "name" }),
 
     conversations: defineTable({
         name: v.optional(v.string()),

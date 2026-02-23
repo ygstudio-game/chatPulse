@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query, internalMutation } from "./_generated/server";
+import { paginationOptsValidator } from "convex/server";
 import { getCurrentUser, requireUser } from "./helpers";
 import { internal } from "./_generated/api";
 
@@ -107,18 +108,22 @@ export const updateTranscript = internalMutation({
 });
 
 export const list = query({
-    args: { conversationId: v.id("conversations") },
+    args: {
+        conversationId: v.id("conversations"),
+        paginationOpts: paginationOptsValidator
+    },
     handler: async (ctx, args) => {
         const me = await getCurrentUser(ctx);
-        if (!me) return [];
+        if (!me) return { page: [], isDone: true, continueCursor: "" };
 
-        const messages = await ctx.db
+        const messagesPage = await ctx.db
             .query("messages")
             .withIndex("by_conversationId", (q) => q.eq("conversationId", args.conversationId))
-            .collect();
+            .order("desc")
+            .paginate(args.paginationOpts);
 
         // Filter out messages deleted specifically for this user
-        const visibleMessages = messages.filter(msg => !msg.deletedBy?.includes(me._id));
+        const visibleMessages = messagesPage.page.filter(msg => !msg.deletedBy?.includes(me._id));
 
         const otherMembers = await ctx.db
             .query("members")
@@ -162,14 +167,32 @@ export const list = query({
                 }
             }
 
+            const reactions = await ctx.db
+                .query("reactions")
+                .withIndex("by_messageId", (q) => q.eq("messageId", msg._id))
+                .collect();
+
+            const groups: Record<string, { count: number; userIds: string[] }> = {};
+            for (const reaction of reactions) {
+                if (!groups[reaction.emoji]) groups[reaction.emoji] = { count: 0, userIds: [] };
+                groups[reaction.emoji].count++;
+                groups[reaction.emoji].userIds.push(reaction.userId);
+            }
+            const groupedReactions = Object.entries(groups).map(([emoji, data]) => ({ emoji, ...data }));
+
+
             return {
                 ...msg,
                 receipt,
-                replyToMessage
+                replyToMessage,
+                reactions: groupedReactions
             };
         }));
 
-        return enrichedMessages;
+        return {
+            ...messagesPage,
+            page: enrichedMessages,
+        };
     },
 });
 

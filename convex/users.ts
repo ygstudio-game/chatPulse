@@ -63,18 +63,20 @@ export const listUsers = query({
         const me = await getCurrentUser(ctx);
         if (!me) return [];
 
-        const users = await ctx.db
-            .query("users")
-            .filter((q) => q.neq(q.field("clerkId"), me.clerkId))
-            .collect();
+        let users;
 
         if (args.search) {
-            return users.filter((user) =>
-                user.name.toLowerCase().includes(args.search.toLowerCase())
-            );
+            users = await ctx.db
+                .query("users")
+                .withSearchIndex("search_name", (q) => q.search("name", args.search))
+                .collect();
+        } else {
+            users = await ctx.db
+                .query("users")
+                .collect();
         }
 
-        return users;
+        return users.filter((user) => user.clerkId !== me.clerkId);
     },
 });
 

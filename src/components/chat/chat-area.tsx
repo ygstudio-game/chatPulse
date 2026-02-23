@@ -43,12 +43,13 @@ export const ChatArea = () => {
         api.conversations.getConversation,
         conversationId ? { id: conversationId } : "skip"
     );
-    const messages = useQuery(
+    const messagesData = useQuery(
         api.messages.list,
-        conversationId ? { conversationId } : "skip"
+        conversationId ? { conversationId, paginationOpts: { numItems: 1, cursor: null } } : "skip"
     );
+    const messages = messagesData?.page || [];
     const me = useQuery(api.users.getMe);
-    const lastMessage = messages?.[messages.length - 1];
+    const lastMessage = messages?.[0];
 
     const handleSummarize = async () => {
         setIsSummarizing(true);
