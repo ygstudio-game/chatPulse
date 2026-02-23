@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation } from "convex/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { api } from "@convex/_generated/api";
 import { Id } from "@convex/_generated/dataModel";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,12 @@ import { Button } from "@/components/ui/button";
 import { Send, Smile, Paperclip, Mic, X, FileText, Image as ImageIcon, Film, Loader2 } from "lucide-react";
 import { VoiceRecorder } from "./voice-recorder";
 import { motion, AnimatePresence } from "framer-motion";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 import { useReplyStore } from "@/store/use-reply-store";
 
@@ -35,8 +41,16 @@ export const MessageInput = ({ conversationId }: MessageInputProps) => {
     const startTyping = useMutation(api.typing.startTyping);
     const stopTyping = useMutation(api.typing.stopTyping);
 
+    useEffect(() => {
+        clearReply();
+    }, [conversationId, clearReply]);
+
     const handleFocus = () => startTyping({ conversationId });
     const handleBlur = () => stopTyping({ conversationId });
+
+    const addEmoji = (emoji: string) => {
+        setContent((prev) => prev + emoji);
+    };
 
     const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -245,14 +259,30 @@ export const MessageInput = ({ conversationId }: MessageInputProps) => {
                                 placeholder="Message..."
                                 className="pr-12 bg-secondary/50 border-border focus-visible:ring-1 focus-visible:ring-accent-mint/50 focus-visible:border-accent-mint h-11 md:h-12 rounded-2xl text-foreground placeholder:text-muted-foreground/50 transition-all font-medium text-[15px] shadow-inner w-full"
                             />
-                            <Button
-                                size="icon"
-                                variant="ghost"
-                                type="button"
-                                className="absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-accent-mint hover:bg-secondary transition-all h-9 w-9 md:h-10 md:w-10 rounded-xl"
-                            >
-                                <Smile className="h-[20px] w-[20px]" strokeWidth={1.5} />
-                            </Button>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button
+                                        size="icon"
+                                        variant="ghost"
+                                        type="button"
+                                        className="absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-accent-mint hover:bg-secondary transition-all h-9 w-9 md:h-10 md:w-10 rounded-xl"
+                                    >
+                                        <Smile className="h-[20px] w-[20px]" strokeWidth={1.5} />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-[280px] p-2 bg-secondary/95 backdrop-blur-xl border-border rounded-2xl shadow-2xl z-[70] grid grid-cols-6 gap-1">
+                                    {["😀", "😂", "😍", "🥳", "😎", "🤔", "😅", "😭", "🙄", "👍", "❤️", "🔥", "✨", "🙌", "🎉", "💯", "🙏", "👀"].map((emoji) => (
+                                        <button
+                                            key={emoji}
+                                            type="button"
+                                            onClick={() => addEmoji(emoji)}
+                                            className="h-10 w-10 flex items-center justify-center text-xl hover:bg-background rounded-xl transition-all hover:scale-110 active:scale-90"
+                                        >
+                                            {emoji}
+                                        </button>
+                                    ))}
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                         </div>
                         <Button
                             type="submit"

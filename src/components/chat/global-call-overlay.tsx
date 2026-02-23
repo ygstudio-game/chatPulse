@@ -8,10 +8,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Phone, Video, Users, Loader2 } from "lucide-react";
 import { useState } from "react";
-import { useConversationStore } from "@/store/use-conversation-store";
+import { useRouter } from "next/navigation";
 
 export function GlobalCallOverlay() {
-    const { setSelectedConversationId } = useConversationStore();
+    const router = useRouter();
     const me = useQuery(api.users.getMe);
     const activeCallConv = useQuery(api.conversations.getOngoingCall);
     const acceptCall = useMutation(api.conversations.acceptCall);
@@ -26,7 +26,7 @@ export function GlobalCallOverlay() {
 
     const handleAccept = async () => {
         await acceptCall({ conversationId: activeCallConv._id });
-        setSelectedConversationId(activeCallConv._id);
+        router.push(`/c/${activeCallConv._id}`);
     };
 
     // If accepted, it's handled by ChatArea's <VideoRoom> rendering. We only want to show Ringing globally.

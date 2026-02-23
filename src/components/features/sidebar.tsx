@@ -16,10 +16,13 @@ import { ModeToggle } from "./mode-toggle";
 import { Plus } from "lucide-react";
 import { CreateGroupModal } from "@/components/chat/create-group-modal";
 import { motion, AnimatePresence } from "framer-motion";
-import { useConversationStore } from "@/store/use-conversation-store";
+import { useRouter, usePathname } from "next/navigation";
 
 export const Sidebar = () => {
-    const { selectedConversationId, setSelectedConversationId } = useConversationStore();
+    const router = useRouter();
+    const pathname = usePathname();
+    const selectedConversationId = pathname?.startsWith("/c/") ? pathname.split("/")[2] : undefined;
+
     const [searchTerm, setSearchTerm] = useState("");
     const [activeTab, setActiveTab] = useState<"chats" | "users">("chats");
     const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
@@ -30,8 +33,8 @@ export const Sidebar = () => {
     const markRead = useMutation(api.conversations.markRead);
 
     const handleSelectConversation = (id: Id<"conversations">) => {
-        setSelectedConversationId(id);
         markRead({ conversationId: id });
+        router.push(`/c/${id}`);
     }
 
     const handleUserClick = async (userId: Id<"users">) => {

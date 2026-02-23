@@ -24,11 +24,14 @@ import {
 
 import { SmartReplies } from "./smart-replies";
 import { Phone, Video, MoreVertical, LogOut, Trash } from "lucide-react";
-import { useConversationStore } from "@/store/use-conversation-store";
+import { useRouter } from "next/navigation";
 
-export const ChatArea = () => {
-    const { selectedConversationId, setSelectedConversationId } = useConversationStore();
-    const conversationId = selectedConversationId as Id<"conversations">;
+interface ChatAreaProps {
+    conversationId: Id<"conversations">;
+}
+
+export const ChatArea = ({ conversationId }: ChatAreaProps) => {
+    const router = useRouter();
     const [isSummarizing, setIsSummarizing] = useState(false);
     const [summary, setSummary] = useState<string | null>(null);
     const summarizeAction = useAction(api.ai.summarize);
@@ -80,7 +83,7 @@ export const ChatArea = () => {
     const handleLeaveGroup = async () => {
         if (conversationId && confirm("Are you sure you want to leave this group?")) {
             await leaveGroup({ conversationId });
-            setSelectedConversationId(undefined);
+            router.push("/");
         }
     }
 
@@ -109,7 +112,7 @@ export const ChatArea = () => {
             <header className="h-[72px] shrink-0 border-b border-border flex items-center px-4 md:px-6 justify-between bg-secondary/80 backdrop-blur-3xl z-50 relative md:rounded-t-3xl">
                 <div className="flex items-center gap-4">
                     <button
-                        onClick={() => setSelectedConversationId(undefined)}
+                        onClick={() => router.push("/")}
                         className="md:hidden p-2 -ml-2 hover:bg-secondary/80 rounded-full text-muted-foreground transition-all active:scale-95"
                     >
                         <ChevronLeft className="h-6 w-6" />

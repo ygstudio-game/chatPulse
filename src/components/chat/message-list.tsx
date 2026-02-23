@@ -263,11 +263,11 @@ export const MessageList = ({ conversationId }: MessageListProps) => {
                                     </div>
 
                                     {!message.deleted && (
-                                        <div className="flex items-center opacity-0 group-hover:opacity-100 transition-all duration-200">
+                                        <div className="flex items-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-200">
                                             {!isMe && (
                                                 <div className="relative group/picker">
                                                     <button
-                                                        className="p-1.5 hover:bg-secondary/80 rounded-full text-muted-foreground hover:text-accent-mint transition-colors cursor-pointer relative z-40"
+                                                        className="p-2 hover:bg-secondary/80 rounded-full text-muted-foreground hover:text-accent-mint transition-colors cursor-pointer relative z-40"
                                                     >
                                                         <Smile className="h-[18px] w-[18px]" />
                                                     </button>
@@ -289,14 +289,14 @@ export const MessageList = ({ conversationId }: MessageListProps) => {
 
                                             <button
                                                 onClick={() => useReplyStore.getState().setReplyTo(message)}
-                                                className="p-1.5 ml-1 hover:bg-secondary/80 rounded-full text-muted-foreground hover:text-accent-mint transition-colors"
+                                                className="p-2 ml-1 hover:bg-secondary/80 rounded-full text-muted-foreground hover:text-accent-mint transition-colors"
                                             >
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 17 4 12 9 7" /><path d="M20 18v-2a4 4 0 0 0-4-4H4" /></svg>
                                             </button>
 
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
-                                                    <button className="p-1.5 hover:bg-secondary/80 rounded-full text-muted-foreground hover:text-accent-rose transition-colors">
+                                                    <button className="p-2 hover:bg-secondary/80 rounded-full text-muted-foreground hover:text-accent-rose transition-colors">
                                                         <Trash2 className="h-[18px] w-[18px]" />
                                                     </button>
                                                 </DropdownMenuTrigger>
